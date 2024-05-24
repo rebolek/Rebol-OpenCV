@@ -298,8 +298,6 @@ with cv [
 ```rebol
 with cv [
     src: imread "image/taj.jpg"
-    ; using a binary for the kernel, but it should be possible
-    ; to use vector directly later once implemented!
     kernel: #(float! [
         0.272 0.534 0.131
         0.349 0.686 0.168
