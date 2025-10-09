@@ -1,6 +1,8 @@
+[![rebol-opencv](https://github.com/user-attachments/assets/6c630cbd-9ef8-41b3-9693-e2b5054712c0)](https://github.com/Oldes/Rebol-OpenCV)
 
 [![Rebol-OpenCV CI](https://github.com/Oldes/Rebol-OpenCV/actions/workflows/main.yml/badge.svg)](https://github.com/Oldes/Rebol-OpenCV/actions/workflows/main.yml)
 [![Gitter](https://badges.gitter.im/rebol3/community.svg)](https://app.gitter.im/#/room/#Rebol3:gitter.im)
+[![Zulip](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://rebol.zulipchat.com/)
 
 # Rebol/OpenCV
 
