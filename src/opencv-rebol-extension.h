@@ -85,6 +85,7 @@ enum ext_commands {
 	CMD_OPENCV_SETTRACKBARPOS,
 	CMD_OPENCV_GETTRACKBARPOS,
 	CMD_OPENCV_SELECTROI,
+	CMD_OPENCV_SETMOUSECALLBACK,
 	CMD_OPENCV_GETTICKCOUNT,
 	CMD_OPENCV_GETTICKFREQUENCY,
 	CMD_OPENCV_GETNUMTHREADS,
@@ -165,6 +166,7 @@ int cmd_setTrackbarMin(RXIFRM *frm, void *ctx);
 int cmd_setTrackbarPos(RXIFRM *frm, void *ctx);
 int cmd_getTrackbarPos(RXIFRM *frm, void *ctx);
 int cmd_selectROI(RXIFRM *frm, void *ctx);
+int cmd_setMouseCallback(RXIFRM *frm, void *ctx);
 int cmd_getTickCount(RXIFRM *frm, void *ctx);
 int cmd_getTickFrequency(RXIFRM *frm, void *ctx);
 int cmd_getNumThreads(RXIFRM *frm, void *ctx);
@@ -193,7 +195,11 @@ enum cv_arg_words {W_ARG_0,
 	W_ARG_FPS,
 	W_ARG_FOURCC,
 	W_ARG_FRAMES,
-	W_ARG_FORMAT
+	W_ARG_FORMAT,
+	W_ARG_X,
+	W_ARG_Y,
+	W_ARG_POS,
+	W_ARG_FLAGS
 };
 enum cv_type_words {W_TYPE_0,
 	W_TYPE_CV_8U,
@@ -241,7 +247,7 @@ enum cv_type_words {W_TYPE_0,
 typedef int (*MyCommandPointer)(RXIFRM *frm, void *ctx);
 
 #define OPENCV_EXT_INIT_CODE \
-	"REBOL [Title: {Rebol OpenCV Extension} Type: module Exports: [] Require: 3.14.0]\n"\
+	"REBOL [Title: {Rebol OpenCV Extension} Version: 0.2.0 Type: module Exports: [] Require: 3.14.0]\n"\
 	"init-words: command [args [block!] type [block!]]\n"\
 	"test: command [\"Simple OpenCV test\"]\n"\
 	"Matrix: command [\"Initialize new cvMat class\" spec [pair! handle! image! block!]]\n"\
@@ -310,6 +316,7 @@ typedef int (*MyCommandPointer)(RXIFRM *frm, void *ctx);
 	"setTrackbarPos: command [\"Sets the trackbar position.\" trackbar [handle!] \"cvTrackbar\" value [integer!] \"New position.\"]\n"\
 	"getTrackbarPos: command [\"Gets the trackbar position.\" trackbar [handle!] \"cvTrackbar\"]\n"\
 	"selectROI: command [\"Allows users to select a ROI on the given image.\" src [image! handle!] \"Image or cvMat handle\"]\n"\
+	"setMouseCallback: command [\"Sets mouse handler for the specified window.\" window [any-string!] context [object!] \"Function context\" word [word!] \"Function name\"]\n"\
 	"getTickCount: command [\"Returns the number of ticks.\"]\n"\
 	"getTickFrequency: command [\"Returns the number of ticks per second.\"]\n"\
 	"getNumThreads: command [{Returns the number of threads used by OpenCV for parallel regions.}]\n"\
@@ -319,7 +326,7 @@ typedef int (*MyCommandPointer)(RXIFRM *frm, void *ctx);
 	"setUseOptimized: command [\"Enables or disables the optimized code.\" onoff [logic!]]\n"\
 	"qrcode-encode: command [\"Encode string to an image.\" text [any-string!] /version \"Symbol version of QR Code range\" v [integer!] \"1 - 40\" /mode \"Encoding mode\" m [integer!] /correction {Approximate error correction level (low, medium, quartile, high)} level [integer!] \"0 - 3 (default is 0)\"]\n"\
 	"qrcode-decode: command [\"Decode string from an image with a QRcode\" image [image! handle! file!] \"Image or cvMat handle\"]\n"\
-	"init-words [size type depth channels binary image vector total is-submatrix width height pos-ms pos-frame pos-ratio fps fourcc frames format][CV_8U CV_8S CV_16U CV_16S CV_32S CV_32F CV_64F CV_16F CV_8UC1 CV_8SC1 CV_16UC1 CV_16SC1 CV_32SC1 CV_32FC1 CV_64FC1 CV_16FC1 CV_8UC2 CV_8SC2 CV_16UC2 CV_16SC2 CV_32SC2 CV_32FC2 CV_64FC2 CV_16FC2 CV_8UC3 CV_8SC3 CV_16UC3 CV_16SC3 CV_32SC3 CV_32FC3 CV_64FC3 CV_16FC3 CV_8UC4 CV_8SC4 CV_16UC4 CV_16SC4 CV_32SC4 CV_32FC4 CV_64FC4 CV_16FC4]\n"\
+	"init-words [size type depth channels binary image vector total is-submatrix width height pos-ms pos-frame pos-ratio fps fourcc frames format x y pos flags][CV_8U CV_8S CV_16U CV_16S CV_32S CV_32F CV_64F CV_16F CV_8UC1 CV_8SC1 CV_16UC1 CV_16SC1 CV_32SC1 CV_32FC1 CV_64FC1 CV_16FC1 CV_8UC2 CV_8SC2 CV_16UC2 CV_16SC2 CV_32SC2 CV_32FC2 CV_64FC2 CV_16FC2 CV_8UC3 CV_8SC3 CV_16UC3 CV_16SC3 CV_32SC3 CV_32FC3 CV_64FC3 CV_16FC3 CV_8UC4 CV_8SC4 CV_16UC4 CV_16SC4 CV_32SC4 CV_32FC4 CV_64FC4 CV_16FC4]\n"\
 	"protect/hide 'init-words\n"\
 	"\n"\
 	"; imread flags..\n"\
@@ -784,6 +791,20 @@ typedef int (*MyCommandPointer)(RXIFRM *frm, void *ctx);
 	"COLORMAP_TWILIGHT_SHIFTED: 19\n"\
 	"COLORMAP_TURBO: 20\n"\
 	"COLORMAP_DEEPGREEN: 21\n"\
+	"\n"\
+	";; MouseEventTypes:\n"\
+	"EVENT_MOUSEMOVE:     0\n"\
+	"EVENT_LBUTTONDOWN:   1\n"\
+	"EVENT_RBUTTONDOWN:   2\n"\
+	"EVENT_MBUTTONDOWN:   3\n"\
+	"EVENT_LBUTTONUP:     4\n"\
+	"EVENT_RBUTTONUP:     5\n"\
+	"EVENT_MBUTTONUP:     6\n"\
+	"EVENT_LBUTTONDBLCLK: 7\n"\
+	"EVENT_RBUTTONDBLCLK: 8\n"\
+	"EVENT_MBUTTONDBLCLK: 9\n"\
+	"EVENT_MOUSEWHEEL:    10\n"\
+	"EVENT_MOUSEHWHEEL:   11\n"\
 	"\n"
 
 #ifdef  USE_TRACES

@@ -422,6 +422,12 @@ Gets the trackbar position.
 Allows users to select a ROI on the given image.
 * `src` `[image! handle!]` Image or cvMat handle
 
+#### `setMouseCallback` `:window` `:context` `:word`
+Sets mouse handler for the specified window.
+* `window` `[any-string!]`
+* `context` `[object!]` Function context
+* `word` `[word!]` Function name
+
 #### `getTickCount`
 Returns the number of ticks.
 
@@ -491,6 +497,16 @@ Decode string from an image with a QRcode
 /fourcc           decimal!            none                          "4-character code of codec"
 /frames           integer!            none                          "Number of frames in the video file"
 /format           word!               none                          "Format of the Mat objects"
+```
+
+#### __CVMOUSECALLBACK__ - Mouse callback state
+
+```rebol
+;Refinement       Gets                Sets                          Description
+/x                integer!            none                          "Last mouseX position"
+/y                integer!            none                          "Last mouseY position"
+/pos              pair!               none                          "Last mouse position as pair"
+/flags            integer!            none                          "Last mouse event flags"
 ```
 
 
@@ -958,4 +974,18 @@ COLORMAP_TWILIGHT: 18
 COLORMAP_TWILIGHT_SHIFTED: 19
 COLORMAP_TURBO: 20
 COLORMAP_DEEPGREEN: 21
+
+;; MouseEventTypes:
+EVENT_MOUSEMOVE:     0
+EVENT_LBUTTONDOWN:   1
+EVENT_RBUTTONDOWN:   2
+EVENT_MBUTTONDOWN:   3
+EVENT_LBUTTONUP:     4
+EVENT_RBUTTONUP:     5
+EVENT_MBUTTONUP:     6
+EVENT_LBUTTONDBLCLK: 7
+EVENT_RBUTTONDBLCLK: 8
+EVENT_MBUTTONDBLCLK: 9
+EVENT_MOUSEWHEEL:    10
+EVENT_MOUSEHWHEEL:   11
 ```

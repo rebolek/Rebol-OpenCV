@@ -298,6 +298,8 @@ with cv [
 ```rebol
 with cv [
     src: imread "image/taj.jpg"
+    ; using a binary for the kernel, but it should be possible
+    ; to use vector directly later once implemented!
     kernel: #(float! [
         0.272 0.534 0.131
         0.349 0.686 0.168
@@ -317,7 +319,7 @@ When constructing matrices from a Rebol's binary or vector value, the buffer may
 ```rebol
 with cv [
     ;; allocate vector for a grayscale image of size 320x200
-    data: #(uint8! 64000)
+    data: make vector! [uint8! 64000]
     ;; make an OpenCV metrix using the shared data
     img: Matrix [320x200 :data]
     ;; do some animation...
@@ -425,6 +427,74 @@ with cv [
     imwrite %tmp/test-qrcode.png :mat
     ;; decode QRCode from file:
     probe qrcode-decode %tmp/test-qrcode.png
+]
+```
+
+### Using mouse callback
+
+```rebol
+;; Having mouse callback handler in a given context
+ctx: context [
+    color: 0.0.0
+    on-mouse-trace: func [
+        type  [integer!]
+        x     [integer!]
+        y     [integer!]
+        flags [integer!]
+    ][
+        print [
+            pickz [
+                MOUSEMOVE
+                LBUTTONDOWN
+                RBUTTONDOWN
+                MBUTTONDOWN
+                LBUTTONUP
+                RBUTTONUP
+                MBUTTONUP
+                LBUTTONDBLCLK
+                RBUTTONDBLCLK
+                MBUTTONDBLCLK
+                MOUSEWHEEL
+                MOUSEHWHEEL
+            ] :type
+            "position:" as-pair x y
+            "flags:" flags
+        ]
+    ]
+    on-mouse-draw: func [
+        type  [integer!]
+        x     [integer!]
+        y     [integer!]
+        flags [integer!]
+    ][
+        if type == cv/EVENT_RBUTTONDOWN [
+            ;; Modify draw color on right button click
+            color: random 200.200.200
+            print ["New draw color:" color]
+        ]
+        if 1 = (flags & 1) [
+            ;; Modify pixel if right mouse button is down
+            img/(mcb/pos): color
+        ]
+        ;; Update the window with modified image
+        cv/imshow/name img win
+    ]
+]
+
+with cv [
+    ;; Display white image...
+    win: "Test mouse window"
+    img: make image! 320x240
+    imshow/name img win
+    ;; Set first callback which prints inputs in console
+    mcb: setMouseCallback win ctx 'on-mouse-trace
+    waitKey 0
+    ;; Replace the mouse callback with a very simple draw handler
+    mcb: setMouseCallback win ctx 'on-mouse-draw
+    waitKey 0
+    ;; Last event data are stored in the cvMouseCallback handle
+    print ["Last mouse position:" mcb/x mcb/y]
+    destroyAllWindows
 ]
 ```
 

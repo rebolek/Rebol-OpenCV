@@ -86,6 +86,7 @@ extern "C" {
 	extern REBCNT Handle_cvVideoWriter;
 	extern REBCNT Handle_cvMat;
 	extern REBCNT Handle_cvTrackbar;
+	extern REBCNT Handle_cvMouseCallback;
 
 
 	static int initRXHandleArg(RXIARG* val, void* handle, REBCNT type, REBSER* ser) {
@@ -301,6 +302,50 @@ extern "C" {
 		if (word >= W_ARG_POS_MS && word <= W_ARG_FRAMES) {
 			*type = RXT_DECIMAL;
 			arg->dec64 = cap->get(word - W_ARG_POS_MS);
+			return PE_USE;
+		}
+		return PE_BAD_SELECT;	
+	}
+
+	void* cvMouseCallback_free(void* cls) {
+		debug_print("GC MouseCallback class %p\n", cls);
+		if (cls != NULL) {
+			CTX_MOUSECALLBACK *mcb = (CTX_MOUSECALLBACK*)cls;
+			if (getWindowProperty(*mcb->window, WND_PROP_VISIBLE))
+				setMouseCallback(*mcb->window, NULL, NULL);
+			delete mcb->window;
+			if(mcb->cbi)  FREE_MEM(mcb->cbi);
+			if(mcb->args) FREE_MEM(mcb->args);
+			mcb->cbi = NULL;
+			mcb->args = NULL;
+		}
+		return NULL;
+	}
+
+	int cvMouseCallback_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
+		CTX_MOUSECALLBACK *mcb = (CTX_MOUSECALLBACK*)hob->handle;
+		if (!mcb) return RXR_NONE;
+
+		word = RL_FIND_WORD(arg_words, word);
+		if (word == W_ARG_X) {
+			*type = RXT_INTEGER;
+			arg->int64 = mcb->x;
+			return PE_USE;
+		}
+		if (word == W_ARG_Y) {
+			*type = RXT_INTEGER;
+			arg->int64 = mcb->y;
+			return PE_USE;
+		}
+		if (word == W_ARG_POS) {
+			*type = RXT_PAIR;
+			arg->dec32a = (float)mcb->x;
+			arg->dec32b = (float)mcb->y;
+			return PE_USE;
+		}
+		if (word == W_ARG_FLAGS) {
+			*type = RXT_INTEGER;
+			arg->int64 = mcb->flags;
 			return PE_USE;
 		}
 		return PE_BAD_SELECT;	
@@ -1785,6 +1830,51 @@ COMMAND cmd_selectROI(RXIFRM *frm, void *ctx) {
 	RXA_TYPE(frm, 1) = RXT_BLOCK;
 	RXA_SERIES(frm, 1) = blk;
 	RXA_INDEX(frm, 1) = 0;
+	return RXR_VALUE;
+}
+
+static void rebMouseCallback(int event, int x, int y, int flags, void* userdata) {
+	REBHOB* hob = (REBHOB*)userdata;
+    CTX_MOUSECALLBACK* mcb = (CTX_MOUSECALLBACK*)hob->data;
+	if (!mcb) {trace("null mouseCallback handle!"); return;}
+	RXIARG *args = mcb->args;
+	RXICBI *cbi  = mcb->cbi;
+	if (!args || !cbi) {trace("!args || !cbi"); return;}
+
+	args[1].int64 = event;
+	args[2].int64 = mcb->x = x;
+	args[3].int64 = mcb->y = y;
+	args[4].int64 = mcb->flags = flags;
+
+	RL_CALLBACK(cbi);
+}
+
+COMMAND cmd_setMouseCallback(RXIFRM *frm, void *ctx) {
+	REBHOB* hob = RL_MAKE_HANDLE_CONTEXT(Handle_cvMouseCallback);
+	if (hob == NULL) return RXR_FALSE;
+	
+	CTX_MOUSECALLBACK* mcb = (CTX_MOUSECALLBACK*)hob->data;
+	mcb->window = new String((const char*)((REBSER*)RXA_ARG(frm, 1).series)->data);
+	mcb->cbi    = (RXICBI*)MAKE_MEM(sizeof(RXICBI));
+	mcb->args   = (RXIARG*)MAKE_MEM(sizeof(RXIARG) * 5);
+	CLEAR(mcb->cbi,  sizeof(RXICBI));
+	CLEAR(mcb->args, sizeof(RXIARG) * 5);
+	mcb->cbi->obj  = (REBSER*)RXA_OBJECT(frm, 2);
+	mcb->cbi->word = RXA_WORD(frm, 3);
+	mcb->cbi->args = mcb->args;
+
+	RXI_COUNT(mcb->args) = 4;
+	RXI_TYPE(mcb->args, 1) = RXT_INTEGER;
+	RXI_TYPE(mcb->args, 2) = RXT_INTEGER;
+	RXI_TYPE(mcb->args, 3) = RXT_INTEGER;
+	RXI_TYPE(mcb->args, 4) = RXT_INTEGER;
+
+	setMouseCallback(*mcb->window, rebMouseCallback, hob);
+
+	RXA_HANDLE(frm, 1) = hob;
+	RXA_HANDLE_TYPE(frm, 1) = hob->sym;
+	RXA_HANDLE_FLAGS(frm, 1) = hob->flags;
+	RXA_TYPE(frm, 1) = RXT_HANDLE;
 	return RXR_VALUE;
 }
 

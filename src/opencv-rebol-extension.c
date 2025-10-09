@@ -15,6 +15,7 @@ REBCNT Handle_cvVideoCapture;
 REBCNT Handle_cvVideoWriter;
 REBCNT Handle_cvMat;
 REBCNT Handle_cvTrackbar;
+REBCNT Handle_cvMouseCallback;
 
 REBDEC doubles[DOUBLE_BUFFER_SIZE];
 RXIARG arg[ARG_BUFFER_SIZE];
@@ -34,7 +35,6 @@ extern void* releaseVideoWriter(void* cls);
 extern void* releaseMat(void* cls);
 extern void* releaseTrackbar(void* cls);
 
-
 int Common_mold(REBHOB *hob, REBSER *ser);
 
 int cvMat_free(void* hndl);
@@ -44,6 +44,9 @@ int cvMat_set_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg);
 int cvVideoCapture_free(void* hndl);
 int cvVideoCapture_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg);
 int cvVideoCapture_set_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg);
+
+int cvMouseCallback_free(void* hndl);
+int cvMouseCallback_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg);
 
 RXIEXT const char *RX_Init(int opts, RL_LIB *lib) {
 	RL = lib;
@@ -76,10 +79,12 @@ RXIEXT const char *RX_Init(int opts, RL_LIB *lib) {
 	//spec.set_path  = cvVideoCapture_Set_path;
 	Handle_cvVideoCapture  = RL_REGISTER_HANDLE_SPEC((REBYTE*)"cvVideoCapture", &spec);
 
-//	Handle_cvVideoCapture = RL_REGISTER_HANDLE((REBYTE*)"cvVideoCapture", sizeof(void*), releaseVideoCapture);
+	spec.free      = cvMouseCallback_free;
+	spec.get_path  = cvMouseCallback_get_path;
+	Handle_cvMouseCallback  = RL_REGISTER_HANDLE_SPEC((REBYTE*)"cvMouseCallback", &spec);
+
+	// Handles without set/get accessors
 	Handle_cvVideoWriter  = RL_REGISTER_HANDLE((REBYTE*)"cvVideoWriter",  sizeof(void*), releaseVideoWriter);
-	//Handle_cvMat          = RL_REGISTER_HANDLE((REBYTE*)"cvMat", sizeof(CTX_MAT), releaseMat);
-//	Handle_cvMat          = RL_REGISTER_HANDLE((REBYTE*)"cvMat", sizeof(void*), cvMat_free);
 	Handle_cvTrackbar     = RL_REGISTER_HANDLE((REBYTE*)"cvTrackbar", sizeof(CTX_TRACKBAR), releaseTrackbar);
 	return init_block;
 }

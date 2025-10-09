@@ -31,22 +31,26 @@
 #define ARG_BUFFER_SIZE    8
 
 #ifdef __cplusplus
-	typedef struct ctx_trackbar {
-		int     value;
-		cv::String  *name;
-		cv::String  *window;
-		RXICBI *cbi;
-		RXIARG *args;
-	} CTX_TRACKBAR;
+# define CV_STRING cv::String
 #else
-	typedef struct ctx_trackbar {
-		int     value;
-		void*   name;
-		void*   window;
-		RXICBI *cbi;
-		RXIARG *args;
-	} CTX_TRACKBAR;
+# define CV_STRING void
 #endif
+
+typedef struct ctx_trackbar {
+	int         value;
+	CV_STRING  *name;
+	CV_STRING  *window;
+	RXICBI     *cbi;
+	RXIARG     *args;
+} CTX_TRACKBAR;
+typedef struct ctx_mouseCallback {
+	int         x;
+	int         y;
+	int         flags;
+	CV_STRING  *window;
+	RXICBI     *cbi;
+	RXIARG     *args;
+} CTX_MOUSECALLBACK;
 
 
 REBOOL fetch_word (REBSER *cmds, REBCNT index, u32* words, REBCNT *cmd);

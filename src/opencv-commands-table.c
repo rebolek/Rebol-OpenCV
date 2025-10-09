@@ -71,6 +71,7 @@ MyCommandPointer Command[] = {
 	cmd_setTrackbarPos,
 	cmd_getTrackbarPos,
 	cmd_selectROI,
+	cmd_setMouseCallback,
 	cmd_getTickCount,
 	cmd_getTickFrequency,
 	cmd_getNumThreads,
