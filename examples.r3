@@ -277,8 +277,6 @@ example "Applying Sepia filter to an image" {
     ```rebol
     with cv [
         src: imread "image/taj.jpg"
-        ; using a binary for the kernel, but it should be possible
-        ; to use vector directly later once implemented!
         kernel: #(float! [
             0.272 0.534 0.131
             0.349 0.686 0.168
@@ -510,7 +508,7 @@ emit-code: func[str][
     print readme str
     parse str [ any [
         thru "```rebol" copy blk to "```" 3 skip (
-            try/except load blk :on-code-error
+            try/with load blk :on-code-error
         )
     ]]
 ]
