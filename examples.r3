@@ -4,7 +4,6 @@ Rebol [
 ]
 
 cv: import 'opencv
-? cv
 
 examples: [
 comment {

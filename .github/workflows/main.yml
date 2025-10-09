@@ -31,7 +31,7 @@ jobs:
       run: ./siskin Rebol-OpenCV.nest opencv-libraries-x64
 
     - name: Build 64bit Rebol OpenCV extension
-      run: ./siskin Rebol-OpenCV.nest opencv-windows-x64.rebx
+      run: ./siskin Rebol-OpenCV.nest -o ./build/opencv-windows-x64.rebx --msvc opencv-windows-x64.rebx
 
     - name: Install Rebol for extension test
       uses: oldes/install-rebol@v3.17.0
@@ -51,7 +51,7 @@ jobs:
   linux:
     strategy:
       fail-fast: true
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository

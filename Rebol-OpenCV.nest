@@ -6,7 +6,7 @@
 github: @opencv
 
 compiler: clang
-version: 4.9.0
+version: 4.13.0
 
 ;define: USE_TRACES
 
@@ -77,13 +77,13 @@ flags:   [-O2 shared]
 #if Windows?  [
 	compiler: clang
 	include: %build/include/
-	library: %opencv_core4100
-	library: %opencv_features2d4100
-	library: %opencv_highgui4100
-	library: %opencv_imgcodecs4100
-	library: %opencv_imgproc4100
-	library: %opencv_videoio4100
-	library: %opencv_objdetect4100
+	library: %opencv_core4130
+	library: %opencv_features2d4130
+	library: %opencv_highgui4130
+	library: %opencv_imgcodecs4130
+	library: %opencv_imgproc4130
+	library: %opencv_videoio4130
+	library: %opencv_objdetect4130
 	upx: on
 ]
 
