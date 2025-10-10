@@ -426,7 +426,7 @@ Allows users to select a ROI on the given image.
 Sets mouse handler for the specified window.
 * `window` `[any-string!]`
 * `context` `[object!]` Function context
-* `word` `[word!]` Function name
+* `word` `[word! none!]` Function name
 
 #### `getTickCount`
 Returns the number of ticks.

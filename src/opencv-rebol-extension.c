@@ -79,6 +79,7 @@ RXIEXT const char *RX_Init(int opts, RL_LIB *lib) {
 	//spec.set_path  = cvVideoCapture_Set_path;
 	Handle_cvVideoCapture  = RL_REGISTER_HANDLE_SPEC((REBYTE*)"cvVideoCapture", &spec);
 
+	spec.size      = sizeof(CTX_MOUSECALLBACK);
 	spec.free      = cvMouseCallback_free;
 	spec.get_path  = cvMouseCallback_get_path;
 	Handle_cvMouseCallback  = RL_REGISTER_HANDLE_SPEC((REBYTE*)"cvMouseCallback", &spec);

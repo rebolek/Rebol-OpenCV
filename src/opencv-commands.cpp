@@ -311,13 +311,16 @@ extern "C" {
 		debug_print("GC MouseCallback class %p\n", cls);
 		if (cls != NULL) {
 			CTX_MOUSECALLBACK *mcb = (CTX_MOUSECALLBACK*)cls;
-			if (getWindowProperty(*mcb->window, WND_PROP_VISIBLE))
-				setMouseCallback(*mcb->window, NULL, NULL);
-			delete mcb->window;
+			if (mcb->window != NULL) {
+				// It's not possible to remove the callback,
+				// because it could remove another one, which is already used.
+				// OpenCV api does not provide any API to get existing callback for a test.
+				//if (getWindowProperty(*mcb->window, WND_PROP_VISIBLE))
+				//	setMouseCallback(*mcb->window, NULL, NULL);
+				delete mcb->window;
+			}
 			if(mcb->cbi)  FREE_MEM(mcb->cbi);
 			if(mcb->args) FREE_MEM(mcb->args);
-			mcb->cbi = NULL;
-			mcb->args = NULL;
 		}
 		return NULL;
 	}
@@ -1836,6 +1839,7 @@ COMMAND cmd_selectROI(RXIFRM *frm, void *ctx) {
 static void rebMouseCallback(int event, int x, int y, int flags, void* userdata) {
 	REBHOB* hob = (REBHOB*)userdata;
     CTX_MOUSECALLBACK* mcb = (CTX_MOUSECALLBACK*)hob->data;
+    //debug_print("mouse %p %p %p %p\n", hob, mcb, mcb->args, mcb->cbi);
 	if (!mcb) {trace("null mouseCallback handle!"); return;}
 	RXIARG *args = mcb->args;
 	RXICBI *cbi  = mcb->cbi;
@@ -1852,6 +1856,11 @@ static void rebMouseCallback(int event, int x, int y, int flags, void* userdata)
 COMMAND cmd_setMouseCallback(RXIFRM *frm, void *ctx) {
 	REBHOB* hob = RL_MAKE_HANDLE_CONTEXT(Handle_cvMouseCallback);
 	if (hob == NULL) return RXR_FALSE;
+
+	if (ARG_Is_None(3)) {
+		setMouseCallback(ARG_String(1), NULL);
+		return RXR_UNSET;
+	}
 	
 	CTX_MOUSECALLBACK* mcb = (CTX_MOUSECALLBACK*)hob->data;
 	mcb->window = new String((const char*)((REBSER*)RXA_ARG(frm, 1).series)->data);
@@ -1862,6 +1871,8 @@ COMMAND cmd_setMouseCallback(RXIFRM *frm, void *ctx) {
 	mcb->cbi->obj  = (REBSER*)RXA_OBJECT(frm, 2);
 	mcb->cbi->word = RXA_WORD(frm, 3);
 	mcb->cbi->args = mcb->args;
+
+	//debug_print("cmd_setMouseCallback %p %p %p %p\n", hob, mcb, mcb->args, mcb->cbi);
 
 	RXI_COUNT(mcb->args) = 4;
 	RXI_TYPE(mcb->args, 1) = RXT_INTEGER;

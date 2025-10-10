@@ -316,7 +316,7 @@ typedef int (*MyCommandPointer)(RXIFRM *frm, void *ctx);
 	"setTrackbarPos: command [\"Sets the trackbar position.\" trackbar [handle!] \"cvTrackbar\" value [integer!] \"New position.\"]\n"\
 	"getTrackbarPos: command [\"Gets the trackbar position.\" trackbar [handle!] \"cvTrackbar\"]\n"\
 	"selectROI: command [\"Allows users to select a ROI on the given image.\" src [image! handle!] \"Image or cvMat handle\"]\n"\
-	"setMouseCallback: command [\"Sets mouse handler for the specified window.\" window [any-string!] context [object!] \"Function context\" word [word!] \"Function name\"]\n"\
+	"setMouseCallback: command [\"Sets mouse handler for the specified window.\" window [any-string!] context [object!] \"Function context\" word [word! none!] \"Function name\"]\n"\
 	"getTickCount: command [\"Returns the number of ticks.\"]\n"\
 	"getTickFrequency: command [\"Returns the number of ticks per second.\"]\n"\
 	"getNumThreads: command [{Returns the number of threads used by OpenCV for parallel regions.}]\n"\

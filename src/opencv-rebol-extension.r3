@@ -586,8 +586,8 @@ commands: [
 	setMouseCallback: [
 		"Sets mouse handler for the specified window."
 		window  [any-string!] 
-		context [object!] "Function context"
-		word    [word!]   "Function name"
+		context [object!]     "Function context"
+		word    [word! none!] "Function name"
 	]
 
 
