@@ -90,7 +90,12 @@ flags:   [-O2 shared]
 make-extension: [
 	files: [
 		%src/opencv-rebol-extension.c
-		%src/opencv-commands.cpp
+		%src/opencv-commands-matrix.cpp
+		%src/opencv-commands-io.cpp
+		%src/opencv-commands-filter.cpp
+		%src/opencv-commands-array.cpp
+		%src/opencv-commands-gui.cpp
+		%src/opencv-commands-utils.cpp
 		%src/opencv-commands-table.c
 	]
 	;- generate main extension header --------------------------------
