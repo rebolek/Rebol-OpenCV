@@ -155,15 +155,22 @@ COMMAND cmd_bitwise_not(RXIFRM *frm, void *ctx) {
 }
 
 COMMAND cmd_absdiff(RXIFRM *frm, void *ctx) {
-	//TODO: should work also with Scalar (Rebol's tuple)
-	Mat *src1    = ARG_Mat(1);
-	Mat *src2    = ARG_Mat(2);
-	Mat *dst     = ARG_Mat_As(3, src1);
+	Mat *src1 = ARG_Mat(1);
+	Mat *dst  = ARG_Mat_As(3, src1);
 
-	if(!src1 || !src2 || !dst) return RXR_NONE;
+	if (!src1 || !dst) return RXR_NONE;
 
 	EXCEPTION_TRY
-	absdiff(*src1, *src2, *dst);
+	if (RXA_TYPE(frm, 2) == RXT_TUPLE) {
+		// Accept a Rebol tuple! (e.g. 255.0.0) as a Scalar
+		RXIARG arg = RXA_ARG(frm, 2);
+		Scalar scalar(arg.bytes[3], arg.bytes[2], arg.bytes[1], arg.bytes[4]);
+		absdiff(*src1, scalar, *dst);
+	} else {
+		Mat *src2 = ARG_Mat(2);
+		if (!src2) return RXR_NONE;
+		absdiff(*src1, *src2, *dst);
+	}
 	EXCEPTION_CATCH
 
 	RXA_ARG(frm, 1) = RXA_ARG(frm, 6);

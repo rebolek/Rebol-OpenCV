@@ -59,7 +59,16 @@ extern char* err_buff[255];
 #define ARG_Int(n)              (RXA_TYPE(frm,n) == RXT_INTEGER ? RXA_INT32(frm,n) : (int)RXA_DEC64(frm,n))
 #define ARG_Size(n)             (RXA_TYPE(frm,n) == RXT_PAIR ? Size(PAIR_X(frm,n), PAIR_Y(frm,n)) : Size(RXA_INT32(frm,n), RXA_INT32(frm,n)));
 #define ARG_Point(n)            (RXA_TYPE(frm,n) == RXT_PAIR ? Point(PAIR_X(frm,n), PAIR_Y(frm,n)) : Point(RXA_INT32(frm,n), RXA_INT32(frm,n)));
-#define ARG_String(n)           (String((const char*)((REBSER*)RXA_ARG(frm, n).series)->data)) //TODO: only ansii yet!
+// Extract a cv::String from a Rebol string argument, converting UCS-2 to UTF-8 if needed.
+static inline String argString(RXIFRM *frm, int n) {
+    REBSER* ser = (REBSER*)RXA_ARG(frm, n).series;
+    if (SERIES_WIDE(ser) == 1) {
+        return String((const char*)SERIES_DATA(ser), SERIES_TAIL(ser));
+    }
+    REBSER* utf8 = RL_ENCODE_UTF8_STRING(SERIES_DATA(ser), SERIES_TAIL(ser), TRUE, 0);
+    return String((const char*)SERIES_DATA(utf8), SERIES_TAIL(utf8));
+}
+#define ARG_String(n)           argString(frm, n)
 #define ARG_BorderType(n)       (RXA_TYPE(frm, n) == RXT_INTEGER ? RXA_INT32(frm, n) : BORDER_DEFAULT)
 
 // Special Mat initialization: if arg[n] is none, create a new Mat with same size/type as m

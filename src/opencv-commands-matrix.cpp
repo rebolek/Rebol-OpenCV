@@ -208,15 +208,14 @@ int cvMat_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
 		break;
 	case W_ARG_VECTOR:
 		*type = RXT_VECTOR;
-		if (ser) {
-			arg->series = ser;
-			arg->index = 0;
-			//TODO: propper casting from binary series to vector of type used by the Matrix
-			//     (which needs modification on Rebol side)
-		} else {
-			REBSER *vec = new_Reb_Vector(mat->cols * mat->rows * mat->channels(), mat->depth());
-			mat2ser(mat, vec, arg);
-		}
+	{
+		// Copy pixel data into a new typed Rebol vector.
+		// The matrix may share a binary! buffer (ser), but binary! cannot be
+		// reinterpreted as vector! through the current extension API, so we
+		// always allocate a fresh vector and copy.
+		REBSER *vec = new_Reb_Vector(mat->cols * mat->rows * mat->channels(), mat->depth());
+		mat2ser(mat, vec, arg);
+	}
 		break;
 	case W_ARG_TOTAL:
 		*type = RXT_INTEGER;
