@@ -136,19 +136,18 @@ COMMAND cmd_qrcode_decode(RXIFRM *frm, void *ctx) {
 
 	EXCEPTION_TRY
 	if (img == NULL) {
-		Mat tmp;
 		if (ARG_Is_Image(1)) {
 			RXIARG arg = RXA_ARG(frm, 1);
-			tmp = Mat(arg.height, arg.width, CV_8UC4);
-			tmp.data = ((REBSER*)arg.series)->data;
+			Mat tmp(arg.height, arg.width, CV_8UC4, ((REBSER*)arg.series)->data);
+			str = qrcode.detectAndDecode(tmp, corners);
 		}
 		else if (ARG_Is_File(1)) {
 			String file = ARG_String(1);
-			tmp = imread(file);
+			Mat tmp = imread(file);
 			if (tmp.empty()) return RXR_NONE;
+			str = qrcode.detectAndDecode(tmp, corners);
 		}
 		else return RXR_NONE;
-		str = qrcode.detectAndDecode(tmp, corners);
 	} else {
 		str = qrcode.detectAndDecode(*img, corners);
 	}

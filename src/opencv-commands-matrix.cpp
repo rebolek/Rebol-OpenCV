@@ -67,7 +67,7 @@ int initRXHandle(RXIFRM *frm, int index, void* handle, REBCNT type, REBSER* ser)
 Mat* new_Mat_From_Image_Arg(RXIFRM *frm, int index) {
 	RXIARG arg = RXA_ARG(frm, index);
 	Mat *mat = new Mat(arg.height, arg.width, CV_8UC4);
-	mat->data = ((REBSER*)arg.series)->data;
+	memcpy(mat->data, ((REBSER*)arg.series)->data, arg.height * arg.width * 4);
 	return mat;
 }
 
@@ -167,7 +167,8 @@ int cvMat_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
 		break;
 	case W_ARG_TYPE:
 		*type = RXT_WORD;
-		arg->int64 = type_words[mat->type() + W_TYPE_CV_8UC1];
+		{ int _d = CV_MAT_DEPTH(mat->type()), _c = CV_MAT_CN(mat->type());
+		  arg->int64 = type_words[W_TYPE_CV_8UC1 + _d + (_c - 1) * 8]; }
 		break;
 	case W_ARG_DEPTH:
 		*type = RXT_WORD;
@@ -363,7 +364,6 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 	REBSER *blk;
 	REBCNT n, t;
 	REBOOL resolved;
-	REBOOL sharedBin = FALSE;
 	RXIARG val;
 	Size size = Size(0,0);
 	int type = CV_8UC4;
@@ -377,7 +377,7 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 
 		for(n = RXA_INDEX(frm, 1); (t = RL_GET_VALUE(blk, n, &val)); n++) {
 			if (t == RXT_END) break;
-			if (t == RXT_GET_WORD || t == RXT_GET_PATH) {
+			if (t == RXT_GET_WORD || t == RXT_GET_PATH || t == RXT_WORD || t == RXT_LIT_WORD) {
 				resolved = TRUE;
 				t = RL_GET_VALUE_RESOLVED(blk, n, &val);
 			} else {
@@ -386,10 +386,9 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 			if (t == RXT_PAIR) {
 				size = Size((int)val.pair.x, (int)val.pair.y);
 			}
-			else if (t == RXT_WORD) {
-				type = RL_FIND_WORD(type_words, val.int32a);
-				if (type < W_TYPE_CV_8UC1 || type > W_TYPE_CV_16FC4) return RXR_FALSE;
-				type -= W_TYPE_CV_8UC1;
+			else if (t == RXT_INTEGER) {
+				if (val.int32a < 0 || val.int32a > CV_16FC4) return RXR_FALSE;
+				type = val.int32a;
 			}
 			else if (t == RXT_TUPLE) {
 				// Fill with a color (tuple)
@@ -401,7 +400,6 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 			else if (t == RXT_BINARY) {
 				bin = (REBSER*)val.series;
 				binBytes = SERIES_TAIL(bin) - val.index;
-				sharedBin = resolved;
 			}
 			else if (t == RXT_VECTOR) {
 				bin = (REBSER*)val.series;
@@ -415,7 +413,6 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 				binBytes = (SERIES_TAIL(bin) - val.index) * VECT_BYTE_SIZE(vecType);
 				type = CV_MAKETYPE(type, depth);
 				if (type < 0 || type > CV_16FC4) goto err_vect;
-				sharedBin = resolved;
 			}
 			else if (t == RXT_HANDLE) {
 				// Clone from a cvMat, optionally with a ROI rect
@@ -433,7 +430,7 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 					goto err_spec;
 				}
 				t = RL_GET_VALUE(blk, n++, &val);
-				if (t == RXT_GET_WORD || t == RXT_GET_PATH) {
+				if (t == RXT_GET_WORD || t == RXT_GET_PATH || t == RXT_WORD || t == RXT_LIT_WORD) {
 					t = RL_GET_VALUE_RESOLVED(blk, n, &val);
 				}
 				if (t != RXT_BLOCK) {
@@ -457,27 +454,12 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 
 			matBytes =  size.width * size.height * elementSizeByType[type];
 
-			if (sharedBin) {
-				if(binBytes < matBytes) goto err_size;
-				mat = new Mat(size, type, SERIES_SKIP(bin, val.index));
-			}
-			else {
-				REBSER *ser = NULL;
-				if (matBytes > 0) {
-					ser = (REBSER *)RL_MAKE_STRING(matBytes, FALSE);
-					SERIES_TAIL(ser) = matBytes;
-					mat = new Mat(size, type, ser->data);
-
-					if (binBytes < matBytes) {
-						unsigned char *bp = ser->data;
-						for (;binBytes <= matBytes; bp += binBytes, matBytes--) {
-							memcpy(bp, SERIES_SKIP(bin, val.index), binBytes);
-						}
-					} else {
-						memcpy(ser->data, SERIES_SKIP(bin, val.index), matBytes);
-					}
-				}
-				*bin = *ser;
+			if (matBytes > 0) {
+				REBSER *ser = (REBSER *)RL_MAKE_STRING(matBytes, FALSE);
+				SERIES_TAIL(ser) = matBytes;
+				mat = new Mat(size, type, ser->data);
+				memcpy(ser->data, SERIES_SKIP(bin, val.index), binBytes < matBytes ? binBytes : matBytes);
+				bin = ser;
 			}
 			goto done;
 		}

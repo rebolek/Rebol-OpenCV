@@ -60,13 +60,13 @@ extern char* err_buff[255];
 #define ARG_Size(n)             (RXA_TYPE(frm,n) == RXT_PAIR ? Size(PAIR_X(frm,n), PAIR_Y(frm,n)) : Size(RXA_INT32(frm,n), RXA_INT32(frm,n)));
 #define ARG_Point(n)            (RXA_TYPE(frm,n) == RXT_PAIR ? Point(PAIR_X(frm,n), PAIR_Y(frm,n)) : Point(RXA_INT32(frm,n), RXA_INT32(frm,n)));
 // Extract a cv::String from a Rebol string argument, converting UCS-2 to UTF-8 if needed.
-static inline String argString(RXIFRM *frm, int n) {
+static inline cv::String argString(RXIFRM *frm, int n) {
     REBSER* ser = (REBSER*)RXA_ARG(frm, n).series;
     if (SERIES_WIDE(ser) == 1) {
-        return String((const char*)SERIES_DATA(ser), SERIES_TAIL(ser));
+        return cv::String((const char*)SERIES_DATA(ser), SERIES_TAIL(ser));
     }
     REBSER* utf8 = RL_ENCODE_UTF8_STRING(SERIES_DATA(ser), SERIES_TAIL(ser), TRUE, 0);
-    return String((const char*)SERIES_DATA(utf8), SERIES_TAIL(utf8));
+    return cv::String((const char*)SERIES_DATA(utf8), SERIES_TAIL(utf8));
 }
 #define ARG_String(n)           argString(frm, n)
 #define ARG_BorderType(n)       (RXA_TYPE(frm, n) == RXT_INTEGER ? RXA_INT32(frm, n) : BORDER_DEFAULT)
@@ -112,12 +112,12 @@ extern unsigned char elementSizeByType[32];
 // Rebol vector type → OpenCV depth mapping.
 extern int vecType2cvType[12];
 
-using namespace cv;
-using namespace std;
-
 //----------------------------------------------------------------------
 // Handle type IDs (defined in opencv-rebol-extension.c)
 //----------------------------------------------------------------------
+using namespace cv;
+using namespace std;
+
 extern "C" {
 	extern REBCNT Handle_cvVideoCapture;
 	extern REBCNT Handle_cvVideoWriter;

@@ -55,7 +55,8 @@ COMMAND cmd_get_property(RXIFRM *frm, void *ctx) {
 			}
 			case MAT_TYPE: {
 				RXA_TYPE(frm,1) = RXT_WORD;
-				RXA_ARG(frm,1).int64 = type_words[mat->type() + W_TYPE_CV_8UC1];
+				{ int _d = CV_MAT_DEPTH(mat->type()), _c = CV_MAT_CN(mat->type());
+		  RXA_ARG(frm,1).int64 = type_words[W_TYPE_CV_8UC1 + _d + (_c - 1) * 8]; }
 				return RXR_VALUE;
 			}
 			case MAT_DEPTH: {
@@ -84,8 +85,10 @@ COMMAND cmd_get_property(RXIFRM *frm, void *ctx) {
 				int channels = mat->channels();
 				if (channels == 1)
 					cvtColor(*mat, tmp, COLOR_GRAY2BGRA);
-				else if (channels == 3 || channels == 4)
+				else if (channels == 3)
 					cvtColor(*mat, tmp, COLOR_BGR2BGRA);
+				else if (channels == 4)
+					tmp = *mat;
 				else return RXR_NONE;
 
 				REBSER *bin = (REBSER *)RL_MAKE_IMAGE(tmp.cols, tmp.rows);
@@ -230,10 +233,9 @@ COMMAND cmd_write(RXIFRM *frm, void *ctx) {
 		if (!mat) return RXR_FALSE;
 		writer->write(*mat);
 	} else {
-		Mat image, mat;
+		Mat mat;
 		RXIARG arg = RXA_ARG(frm, 2);
-		image = Mat(arg.height, arg.width, CV_8UC4);
-		image.data = ((REBSER*)arg.series)->data;
+		Mat image(arg.height, arg.width, CV_8UC4, ((REBSER*)arg.series)->data);
 		image.convertTo(mat, CV_8UC3);
 		writer->write(mat);
 	}
@@ -341,10 +343,8 @@ COMMAND cmd_imwrite(RXIFRM *frm, void *ctx) {
 		if (!ARG_Mat(2)) return RXR_FALSE;
 		result = imwrite(name, *ARG_Mat(2), params);
 	} else if(ARG_Is_Image(2)) {
-		Mat image;
 		RXIARG arg = RXA_ARG(frm, 2);
-		image = Mat(arg.height, arg.width, CV_8UC4);
-		image.data = ((REBSER*)arg.series)->data;
+		Mat image(arg.height, arg.width, CV_8UC4, ((REBSER*)arg.series)->data);
 		result = imwrite(name, image, params);
 	}
 	EXCEPTION_CATCH

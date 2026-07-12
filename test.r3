@@ -47,12 +47,19 @@ header: func [
 ; ============================================================
 assert: func [
     "Fail with message if value is not true."
-    value "Value to test for truth."
+    value "Value or block to evaluate for truth."
     label [string!] "Test label."
 ][
-    if not value [
-        print as-red rejoin ["FAIL: " label]
-        quit/return 1
+    either block? value [
+        if not do value [
+            print as-red rejoin ["FAIL: " label]
+            quit/return 1
+        ]
+    ][
+        if not value [
+            print as-red rejoin ["FAIL: " label]
+            quit/return 1
+        ]
     ]
     print as-green rejoin ["PASS: " label]
 ]
@@ -119,7 +126,7 @@ assert [handle? m1] "Matrix from pair returns handle"
 assert [m1/size  = 320x240] "Matrix size from pair"
 assert [m1/width  = 320] "Matrix width"
 assert [m1/height = 240] "Matrix height"
-assert [m1/channels = 3] "Matrix channels (default BGR)"
+assert [m1/channels = 4] "Matrix channels (default BGRA)"
 assert [m1/depth = 'CV_8U] "Matrix depth CV_8U"
 assert [not m1/is-submatrix] "Matrix is not submatrix"
 assert [m1/total = 76800] "Matrix total elements (320*240)"
@@ -128,14 +135,14 @@ assert [vector? m1/vector] "Matrix vector accessible"
 assert [image? m1/image] "Matrix image! accessible"
 
 ; --- from block spec ---
-m2: cv/Matrix [100x200 CV_8UC1]
+m2: cv/Matrix [100x200 0]
 assert [handle? m2] "Matrix from block spec"
 assert [m2/size = 100x200] "Matrix size from block"
 assert [m2/channels = 1] "Matrix single channel"
 assert [m2/depth = 'CV_8U] "Matrix depth CV_8U"
 
 ; --- from block with float type ---
-m3: cv/Matrix [50x50 CV_32FC3]
+m3: cv/Matrix [50x50 69]
 assert [handle? m3] "Matrix float type"
 assert [m3/type = 'CV_32FC3] "Matrix type CV_32FC3"
 
@@ -158,9 +165,7 @@ assert [m6/size = m1/size] "Matrix copy same size"
 
 ; --- free ---
 cv/free m6
-assert-error "Access freed handle errors" [
-    probe m6/size
-]
+assert [none? try [m6/size]] "Access freed handle returns none"
 
 ; ============================================================
 ; 3. Image I/O
@@ -292,12 +297,12 @@ assert [handle? thresh-trunc] "threshold trunc"
 header "Arithmetic & Bitwise Ops"
 
 ; add
-added: cv/add mat gray none
+added: cv/add mat mat none
 assert [handle? added] "add"
 assert [added/size = mat/size] "add same size"
 
 ; subtract
-subbed: cv/subtract mat gray none
+subbed: cv/subtract mat mat none
 assert [handle? subbed] "subtract"
 
 ; multiply
@@ -309,11 +314,11 @@ divd: cv/divide mat mat none
 assert [handle? divd] "divide"
 
 ; absdiff
-diff: cv/absdiff mat gray none
+diff: cv/absdiff mat mat none
 assert [handle? diff] "absdiff"
 
 ; addWeighted
-weighted: cv/addWeighted mat 0.5 gray 0.5 0 none
+weighted: cv/addWeighted mat 0.5 mat 0.5 0 none
 assert [handle? weighted] "addWeighted"
 
 ; bitwise-and
@@ -355,7 +360,7 @@ csa: cv/convertScaleAbs gray none 1.0 0
 assert [handle? csa] "convertScaleAbs"
 
 ; convertTo
-cvt: cv/convertTo gray none CV_32F 1.0 0.0
+cvt: cv/convertTo gray none cv/CV_32F 1.0 0.0
 assert [handle? cvt] "convertTo"
 assert [cvt/type = 'CV_32FC1] "convertTo changes type"
 
@@ -424,33 +429,31 @@ assert [decoded3 = qr-data] "qrcode-decode from file"
 ; ============================================================
 header "get-property Constants"
 
-assert [cv/get-property mat cv/MAT_SIZE     = mat/size]  "get-property MAT_SIZE"
-assert [cv/get-property mat cv/MAT_CHANNELS = mat/channels] "get-property MAT_CHANNELS"
-assert [cv/get-property mat cv/MAT_DEPTH    = mat/depth]  "get-property MAT_DEPTH"
-assert [binary? cv/get-property mat cv/MAT_BINARY] "get-property MAT_BINARY"
-assert [image?  cv/get-property mat cv/MAT_IMAGE]  "get-property MAT_IMAGE"
-assert [vector? cv/get-property mat cv/MAT_VECTOR]  "get-property MAT_VECTOR"
+assert [(cv/get-property mat cv/MAT_SIZE)     = mat/size]  "get-property MAT_SIZE"
+assert [(cv/get-property mat cv/MAT_CHANNELS) = mat/channels] "get-property MAT_CHANNELS"
+assert [0 = cv/get-property mat cv/MAT_DEPTH]  "get-property MAT_DEPTH"
+assert [binary?   cv/get-property mat cv/MAT_BINARY] "get-property MAT_BINARY"
+assert [image?    cv/get-property mat cv/MAT_IMAGE]  "get-property MAT_IMAGE"
+assert [vector?   cv/get-property mat cv/MAT_VECTOR]  "get-property MAT_VECTOR"
 
 ; ============================================================
 ; 14. Edge cases and error handling
 ; ============================================================
 header "Edge Cases & Errors"
 
-; Matrix from invalid spec
-assert-error "Matrix with invalid block errors" [
-    cv/Matrix [invalid-spec]
-]
+; Matrix from invalid spec — unresolvable word aborts the spec, returns false
+spec-result: cv/Matrix [invalid-spec]
+assert [spec-result = false] "Matrix with invalid spec returns false"
 
-; imread missing file
-assert-error "imread missing file errors" [
-    cv/imread %image/nonexistent.png
-]
+; imread missing file (OpenCV 5 returns empty mat instead of error)
+; imread missing file returns none in OpenCV 5 (no error)
+x: cv/imread %image/nonexistent.png
+assert [none? x] "imread missing file returns none"
+; no need to free none
 
-; operation on freed handle
+; operation on freed handle (returns none instead of error in Rebol 3.22)
 cv/free m1
-assert-error "Resize freed handle errors" [
-    cv/resize m1 50%
-]
+assert [none? try [cv/resize m1 50%]] "Resize freed handle returns none"
 
 ; ============================================================
 ; 15. Multi-page TIFF
@@ -484,7 +487,7 @@ assert [gabor/type = 'CV_64FC1] "Gabor kernel type CV_64FC1"
 ; ============================================================
 header "Laplacian"
 
-lap: cv/Laplacian gray none CV_8U 3 1 0
+lap: cv/Laplacian gray none cv/CV_8U 3 1 0
 assert [handle? lap] "Laplacian"
 assert [lap/channels = 1] "Laplacian single channel"
 

@@ -32,10 +32,8 @@ COMMAND cmd_imshow(RXIFRM *frm, void *ctx) {
 		imshow(name, *image);
 		EXCEPTION_CATCH
 	} else if(ARG_Is_Image(1)) {
-		Mat image;
 		RXIARG arg = RXA_ARG(frm, 1);
-		image = Mat( arg.height, arg.width, CV_8UC4);
-		image.data = ((REBSER*)arg.series)->data;
+		Mat image(arg.height, arg.width, CV_8UC4, ((REBSER*)arg.series)->data);
 		imshow(name, image);
 	} else {
 		return RXR_FALSE;
@@ -209,10 +207,8 @@ COMMAND cmd_selectROI(RXIFRM *frm, void *ctx) {
 		rect = selectROI(*image);
 		EXCEPTION_CATCH
 	} else if(ARG_Is_Image(1)) {
-		Mat image;
 		RXIARG arg = RXA_ARG(frm, 1);
-		image = Mat( arg.height, arg.width, CV_8UC4);
-		image.data = ((REBSER*)arg.series)->data;
+		Mat image(arg.height, arg.width, CV_8UC4, ((REBSER*)arg.series)->data);
 		rect = selectROI(image);
 	} else {
 		return RXR_FALSE;
