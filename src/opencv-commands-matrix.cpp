@@ -11,13 +11,11 @@
 // Global error buffer for exception messages
 char* err_buff[255];
 
-// Element byte-size lookup: indexed by OpenCV type (depth | (channels-1)<<3)
-unsigned char elementSizeByType[32] = {
-	1, 1, 2, 2,  4,  4,  8, 2, //CV_8UC1, CV_8SC1, CV_16UC1, CV_16SC1, CV_32SC1, CV_32FC1, CV_64FC1, CV_16FC1
-	2, 2, 4, 4,  8,  8, 16, 4, //CV_8UC2, CV_8SC2, CV_16UC2, CV_16SC2, CV_32SC2, CV_32FC2, CV_64FC2, CV_16FC2
-	3, 3, 6, 6, 12, 12, 24, 6, //CV_8UC3, CV_8SC3, CV_16UC3, CV_16SC3, CV_32SC3, CV_32FC3, CV_64FC3, CV_16FC3
-	4, 4, 8, 8, 16, 16, 32, 8, //CV_8UC4, CV_8SC4, CV_16UC4, CV_16SC4, CV_32SC4, CV_32FC4, CV_64FC4, CV_16FC4
-};
+// Per-channel byte size indexed by OpenCV depth (CV_8U=0, CV_8S=1, CV_16U=2, CV_16S=3,
+// CV_32S=4, CV_32F=5, CV_64F=6, CV_16F=7). Total element size = depthByteSize[depth] * channels
+// (see elementSizeForType in opencv-commands-common.h) — depth-only, so it's unaffected by
+// CV_CN_SHIFT differences between OpenCV versions.
+unsigned char depthByteSize[8] = {1, 1, 2, 2, 4, 4, 8, 2};
 
 // Rebol vector type enum values → OpenCV depth (CV_8U, CV_8S, …)
 int vecType2cvType[12] = {
@@ -194,8 +192,11 @@ int cvMat_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
 		if (channels == 1) {
 			cvtColor(*mat, tmp, COLOR_GRAY2BGRA);
 		}
-		else if (channels == 3 || channels == 4) {
+		else if (channels == 3) {
 			cvtColor(*mat, tmp, COLOR_BGR2BGRA);
+		}
+		else if (channels == 4) {
+			tmp = *mat;
 		}
 		else {
 			*type = RXT_NONE;
@@ -267,7 +268,9 @@ int cvVideoCapture_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg)
 	}
 	if (word == W_ARG_FORMAT) {
 		*type = RXT_WORD;
-		arg->int64 = type_words[(int)cap->get(CAP_PROP_FORMAT) + W_TYPE_CV_8UC1];
+		{ int fmt = (int)cap->get(CAP_PROP_FORMAT);
+		  int _d = CV_MAT_DEPTH(fmt), _c = CV_MAT_CN(fmt);
+		  arg->int64 = type_words[W_TYPE_CV_8UC1 + _d + (_c - 1) * 8]; }
 		return PE_USE;
 	}
 	if (word >= W_ARG_POS_MS && word <= W_ARG_FRAMES) {
@@ -363,7 +366,6 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 	REBSER *bin = NULL;
 	REBSER *blk;
 	REBCNT n, t;
-	REBOOL resolved;
 	RXIARG val;
 	Size size = Size(0,0);
 	int type = CV_8UC4;
@@ -378,10 +380,7 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 		for(n = RXA_INDEX(frm, 1); (t = RL_GET_VALUE(blk, n, &val)); n++) {
 			if (t == RXT_END) break;
 			if (t == RXT_GET_WORD || t == RXT_GET_PATH || t == RXT_WORD || t == RXT_LIT_WORD) {
-				resolved = TRUE;
 				t = RL_GET_VALUE_RESOLVED(blk, n, &val);
-			} else {
-				resolved = FALSE;
 			}
 			if (t == RXT_PAIR) {
 				size = Size((int)val.pair.x, (int)val.pair.y);
@@ -452,13 +451,14 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 			if (size.width <= 0 || size.height <= 0) goto err_size;
 			if (type < 0 || type > CV_16FC4) goto err_type;
 
-			matBytes =  size.width * size.height * elementSizeByType[type];
+			matBytes =  size.width * size.height * elementSizeForType(type);
 
 			if (matBytes > 0) {
+				if (binBytes < matBytes) goto err_shortBin;
 				REBSER *ser = (REBSER *)RL_MAKE_STRING(matBytes, FALSE);
 				SERIES_TAIL(ser) = matBytes;
 				mat = new Mat(size, type, ser->data);
-				memcpy(ser->data, SERIES_SKIP(bin, val.index), binBytes < matBytes ? binBytes : matBytes);
+				memcpy(ser->data, SERIES_SKIP(bin, val.index), matBytes);
 				bin = ser;
 			}
 			goto done;

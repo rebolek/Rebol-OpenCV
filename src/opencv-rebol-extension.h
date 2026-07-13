@@ -275,7 +275,7 @@ typedef int (*MyCommandPointer)(RXIFRM *frm, void *ctx);
 	"cvtColor: command [\"Converts an image from one color space to another.\" src [handle!] \"source cvMat handle\" dst [handle! none!] \"destination cvMat\" code [integer!]]\n"\
 	"applyColorMap: command [{Applies a GNU Octave/MATLAB equivalent colormap on a given image.} src [handle!] \"source cvMat handle\" dst [handle! none!] \"destination cvMat\" colormap [integer!]]\n"\
 	"threshold: command [{Applies a fixed-level threshold to each array element.} src [handle!] dst [handle! none!] thresh [number!] maxval [number!] type [integer!]]\n"\
-	"absdiff: command [{Calculates the per-element absolute difference between two arrays} src1 [handle!] \"cvMat\" src2 [handle!] \"cvMat\" dst [handle! none!] \"cvMat\"]\n"\
+	"absdiff: command [{Calculates the per-element absolute difference between two arrays} src1 [handle!] \"cvMat\" src2 [handle! tuple!] \"cvMat, or a color tuple to diff against\" dst [handle! none!] \"cvMat\"]\n"\
 	"add: command [\"Calculates the per-element sum of two arrays.\" src1 [handle!] \"cvMat\" src2 [handle!] \"cvMat\" dst [handle! none!] \"cvMat\" /mask m [handle!] \"cvMat\"]\n"\
 	"addWeighted: command [\"Calculates the weighted sum of two arrays.\" src1 [handle!] \"cvMat\" alpha [number!] \"weight of the first array elements.\" src2 [handle!] \"cvMat\" beta [number!] \"weight of the second array elements.\" gamma [number!] \"scalar added to each sum.\" dst [handle! none!] \"cvMat\"]\n"\
 	"bitwise-and: command [{Computes bitwise conjunction of the two arrays (dst = src1 & src2)} src1 [handle!] \"cvMat\" src2 [handle!] \"cvMat\" dst [handle! none!] \"cvMat\" /mask m [handle!] \"cvMat\"]\n"\

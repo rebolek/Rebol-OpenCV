@@ -302,7 +302,7 @@ commands: [
 	absdiff: [
 		"Calculates the per-element absolute difference between two arrays"
 		src1 [handle!] "cvMat"
-		src2 [handle!] "cvMat"
+		src2 [handle! tuple!] "cvMat, or a color tuple to diff against"
 		dst  [handle! none!] "cvMat"
 	]
 	add: [

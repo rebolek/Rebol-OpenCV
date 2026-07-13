@@ -137,8 +137,8 @@ COMMAND cmd_createTrackbar(RXIFRM *frm, void *ctx) {
 	if (hob == NULL) return RXR_FALSE;
 
 	CTX_TRACKBAR* bar = (CTX_TRACKBAR*)hob->data;
-	bar->name   = new String((const char*)((REBSER*)RXA_ARG(frm, 1).series)->data);
-	bar->window = new String((const char*)((REBSER*)RXA_ARG(frm, 2).series)->data);
+	bar->name   = new String(ARG_String(1));
+	bar->window = new String(ARG_String(2));
 	EXCEPTION_TRY
 	if (ARG_Is_None(4)) {
 		createTrackbar(*bar->name, *bar->window, &bar->value, ARG_Int(3));
@@ -261,7 +261,7 @@ COMMAND cmd_setMouseCallback(RXIFRM *frm, void *ctx) {
 	}
 
 	CTX_MOUSECALLBACK* mcb = (CTX_MOUSECALLBACK*)hob->data;
-	mcb->window = new String((const char*)((REBSER*)RXA_ARG(frm, 1).series)->data);
+	mcb->window = new String(ARG_String(1));
 	mcb->cbi    = (RXICBI*)MAKE_MEM(sizeof(RXICBI));
 	mcb->args   = (RXIARG*)MAKE_MEM(sizeof(RXIARG) * 5);
 	CLEAR(mcb->cbi,  sizeof(RXICBI));

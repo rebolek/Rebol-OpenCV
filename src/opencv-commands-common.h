@@ -54,7 +54,16 @@ extern char* err_buff[255];
 #define ARG_VideoCapture(n)     (VideoCapture*)(RXA_HANDLE_CONTEXT(frm, n)->handle)
 #define ARG_VideoWriter(n)      (VideoWriter*)(RXA_HANDLE_CONTEXT(frm, n)->handle)
 #define ARG_Trackbar(n)         (ARG_Is_Trackbar(n) ? (CTX_TRACKBAR*)(RXA_HANDLE_CONTEXT(frm, n)->handle) : NULL)
-#define ARG_MatType(n)          (RXA_TYPE(frm,n) == RXT_INTEGER ? RXA_INT32(frm,n) : RL_FIND_WORD(type_words, RXA_INT32(frm,n))-W_TYPE_CV_8UC1)
+// type_words lists type symbols in fixed depth-then-channel order (see type-words:
+// block in opencv-rebol-extension.r3): ordinal 0..31 encodes depth + (channels-1)*8.
+// That stride-8 ordinal is NOT a real OpenCV type value once CV_CN_SHIFT != 3 (OpenCV 5
+// uses 5), so it must be decoded and rebuilt via CV_MAKETYPE rather than used directly.
+static inline int argMatType(RXIFRM *frm, int n) {
+	if (RXA_TYPE(frm,n) == RXT_INTEGER) return RXA_INT32(frm,n);
+	int ordinal = RL_FIND_WORD(type_words, RXA_INT32(frm,n)) - W_TYPE_CV_8UC1;
+	return CV_MAKETYPE(ordinal & 7, (ordinal >> 3) + 1);
+}
+#define ARG_MatType(n)          argMatType(frm, n)
 #define ARG_Double(n)           (RXA_TYPE(frm,n) == RXT_DECIMAL ? RXA_DEC64(frm,n) : (double)RXA_INT64(frm,n))
 #define ARG_Int(n)              (RXA_TYPE(frm,n) == RXT_INTEGER ? RXA_INT32(frm,n) : (int)RXA_DEC64(frm,n))
 #define ARG_Size(n)             (RXA_TYPE(frm,n) == RXT_PAIR ? Size(PAIR_X(frm,n), PAIR_Y(frm,n)) : Size(RXA_INT32(frm,n), RXA_INT32(frm,n)));
@@ -105,9 +114,14 @@ enum MatProperties {
 	MAT_VECTOR,
 };
 
-// Element byte-size lookup indexed by (depth | channels-1).
-// Row = channels-1, column = depth.
-extern unsigned char elementSizeByType[32];
+// Per-channel byte size indexed by OpenCV depth (CV_8U, CV_8S, CV_16U, ...).
+extern unsigned char depthByteSize[8];
+// Total per-element byte size (all channels) for a real OpenCV type value.
+// Computed from depth/channel count rather than indexed by raw type, since the
+// channel stride in `type` (CV_CN_SHIFT) differs between OpenCV versions.
+static inline int elementSizeForType(int type) {
+	return depthByteSize[CV_MAT_DEPTH(type)] * CV_MAT_CN(type);
+}
 
 // Rebol vector type → OpenCV depth mapping.
 extern int vecType2cvType[12];

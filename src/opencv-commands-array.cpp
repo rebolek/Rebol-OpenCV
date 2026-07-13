@@ -91,8 +91,6 @@ static int mat_math_op(RXIFRM *frm, void *ctx, int op) {
 
 	if (op < 10) {
 		mask = ARG_Mat(5);
-		if(!mask)
-			mask = (Mat*)&noArray();
 	} else {
 		if (!ARG_Is_None(4)) scale = ARG_Double(5);
 	}
@@ -101,11 +99,11 @@ static int mat_math_op(RXIFRM *frm, void *ctx, int op) {
 
 	EXCEPTION_TRY
 	switch (op){
-		case BITWISE_AND:   bitwise_and(*src1, *src2, *dst, *mask); break;
-		case BITWISE_OR:    bitwise_or(*src1, *src2, *dst, *mask); break;
-		case BITWISE_XOR:   bitwise_xor(*src1, *src2, *dst, *mask); break;
-		case MATH_ADD:      add(*src1, *src2, *dst, *mask); break;
-		case MATH_SUBTRACT: subtract(*src1, *src2, *dst, *mask); break;
+		case BITWISE_AND:   if (mask) bitwise_and(*src1, *src2, *dst, *mask); else bitwise_and(*src1, *src2, *dst); break;
+		case BITWISE_OR:    if (mask) bitwise_or (*src1, *src2, *dst, *mask); else bitwise_or (*src1, *src2, *dst); break;
+		case BITWISE_XOR:   if (mask) bitwise_xor(*src1, *src2, *dst, *mask); else bitwise_xor(*src1, *src2, *dst); break;
+		case MATH_ADD:      if (mask) add(*src1, *src2, *dst, *mask); else add(*src1, *src2, *dst); break;
+		case MATH_SUBTRACT: if (mask) subtract(*src1, *src2, *dst, *mask); else subtract(*src1, *src2, *dst); break;
 		case MATH_MULTIPLY: multiply(*src1, *src2, *dst, scale); break;
 		case MATH_DIVIDE:   divide(*src1, *src2, *dst, scale); break;
 	}
@@ -173,7 +171,7 @@ COMMAND cmd_absdiff(RXIFRM *frm, void *ctx) {
 	}
 	EXCEPTION_CATCH
 
-	RXA_ARG(frm, 1) = RXA_ARG(frm, 6);
+	RXA_ARG(frm, 1) = RXA_ARG(frm, 3);
 	return RXR_VALUE;
 }
 
