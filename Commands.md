@@ -184,7 +184,7 @@ Applies a fixed-level threshold to each array element.
 #### `absdiff` `:src1` `:src2` `:dst`
 Calculates the per-element absolute difference between two arrays
 * `src1` `[handle!]` cvMat
-* `src2` `[handle!]` cvMat
+* `src2` `[handle! tuple!]` cvMat, or a color tuple to diff against
 * `dst` `[handle! none!]` cvMat
 
 #### `add` `:src1` `:src2` `:dst`
@@ -916,6 +916,40 @@ CV_16S:  3
 CV_32S:  4
 CV_32F:  5
 CV_64F:  6
+
+; Types:
+CV_8UC1:  0
+CV_8SC1:  1
+CV_16UC1: 2
+CV_16SC1: 3
+CV_32SC1: 4
+CV_32FC1: 5
+CV_64FC1: 6
+CV_16FC1: 7
+CV_8UC2:  32
+CV_8SC2:  33
+CV_16UC2: 34
+CV_16SC2: 35
+CV_32SC2: 36
+CV_32FC2: 37
+CV_64FC2: 38
+CV_16FC2: 39
+CV_8UC3:  64
+CV_8SC3:  65
+CV_16UC3: 66
+CV_16SC3: 67
+CV_32SC3: 68
+CV_32FC3: 69
+CV_64FC3: 70
+CV_16FC3: 71
+CV_8UC4:  96
+CV_8SC4:  97
+CV_16UC4: 98
+CV_16SC4: 99
+CV_32SC4: 100
+CV_32FC4: 101
+CV_64FC4: 102
+CV_16FC4: 103
 
 ; DecompTypes:
 DECOMP_LU: 0
