@@ -103,6 +103,7 @@ COMMAND cmd_get_property(RXIFRM *frm, void *ctx) {
 				// The matrix may share a binary! buffer, but binary! cannot be
 				// reinterpreted as vector! through the current extension API.
 				REBSER *vec = new_Reb_Vector(mat->cols * mat->rows * mat->channels(), mat->depth());
+				if (!vec) return RXR_NONE; // no vector! type for this depth
 				mat2ser(mat, vec, &RXA_ARG(frm,1));
 				RXA_TYPE  (frm, 1) = RXT_VECTOR;
 				return RXR_VALUE;

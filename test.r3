@@ -152,6 +152,27 @@ m4: cv/Matrix [100x100 v]
 assert [handle? m4] "Matrix from vector data"
 assert-equal m4/size 100x100 "Matrix size from vector"
 
+; --- from binary data, size-first vs data-first ---
+; Regression: the pixel copy used the last-parsed spec element's series index,
+; so putting the binary before the size copied from the wrong offset.
+px: #{000102030405060708090A0B0C0D0E0F}   ; 2x2 CV_8UC4 = 16 bytes
+m4a: cv/Matrix reduce [2x2 px]             ; size first (data is last element)
+m4b: cv/Matrix reduce [px 2x2]             ; data first (data is NOT last element)
+assert-equal px m4a/binary "Matrix from binary (size first) preserves data"
+assert-equal px m4b/binary "Matrix from binary (data first) preserves data"
+assert-equal m4a/binary m4b/binary "Matrix binary spec is order-independent"
+cv/free m4a
+cv/free m4b
+
+; --- CV_16F matrix has no vector! representation ---
+; Regression: new_Reb_Vector had no case for CV_16F and used uninitialized
+; type/sign/bits; it now returns none instead of a garbage vector.
+m-half: cv/Matrix reduce [8x8 cv/CV_16FC1]
+assert-equal m-half/type 'CV_16FC1 "Matrix CV_16FC1 type"
+assert [none? m-half/vector] "CV_16F matrix vector accessor returns none"
+assert [binary? m-half/binary] "CV_16F matrix binary accessor still works"
+cv/free m-half
+
 ; --- from image ---
 img: make image! 64x64
 m5: cv/Matrix img

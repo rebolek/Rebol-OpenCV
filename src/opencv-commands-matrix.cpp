@@ -84,6 +84,9 @@ REBSER* new_Reb_Vector(REBCNT size, int depth) {
 		case CV_32S: type = 0; sign = 0; bits = 32; break;
 		case CV_32F: type = 1; sign = 0; bits = 32; break;
 		case CV_64F: type = 1; sign = 0; bits = 64; break;
+		// No Rebol vector! equivalent (e.g. CV_16F half-float). Bail rather
+		// than build a vector from uninitialized type/sign/bits.
+		default: return NULL;
 	}
 	REBSER *vec = (REBSER *)RL_MAKE_VECTOR(type, sign, dims, bits, size);
 	SERIES_TAIL(vec) = size;
@@ -209,13 +212,14 @@ int cvMat_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
 		arg->height = tmp.rows;
 		break;
 	case W_ARG_VECTOR:
-		*type = RXT_VECTOR;
 	{
 		// Copy pixel data into a new typed Rebol vector.
 		// The matrix may share a binary! buffer (ser), but binary! cannot be
 		// reinterpreted as vector! through the current extension API, so we
 		// always allocate a fresh vector and copy.
 		REBSER *vec = new_Reb_Vector(mat->cols * mat->rows * mat->channels(), mat->depth());
+		if (!vec) { *type = RXT_NONE; break; } // no vector! type for this depth
+		*type = RXT_VECTOR;
 		mat2ser(mat, vec, arg);
 	}
 		break;
@@ -370,6 +374,7 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 	Size size = Size(0,0);
 	int type = CV_8UC4;
 	int binBytes = 0, matBytes = 0;
+	REBCNT binIndex = 0; // series offset of the binary/vector data element
 
 	if (ARG_Is_Block(1)) {
 		// Block spec: [size [type] data ...]
@@ -398,10 +403,12 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 			}
 			else if (t == RXT_BINARY) {
 				bin = (REBSER*)val.series;
+				binIndex = val.index;
 				binBytes = SERIES_TAIL(bin) - val.index;
 			}
 			else if (t == RXT_VECTOR) {
 				bin = (REBSER*)val.series;
+				binIndex = val.index;
 				if (size.width <= 0 || size.height <= 0) goto err_size;
 				int vecType = VECT_TYPE(bin);
 				if (vecType < 0 || vecType > 11 || (type = vecType2cvType[vecType]) < 0 ) {
@@ -460,7 +467,7 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 				REBSER *ser = (REBSER *)RL_MAKE_STRING(matBytes, FALSE);
 				SERIES_TAIL(ser) = matBytes;
 				mat = new Mat(size, type, ser->data);
-				memcpy(ser->data, SERIES_SKIP(bin, val.index), matBytes);
+				memcpy(ser->data, SERIES_SKIP(bin, binIndex), matBytes);
 				bin = ser;
 			}
 			goto done;
