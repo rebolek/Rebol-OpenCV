@@ -11,7 +11,7 @@
 
 //;-----------------------------------------------------------------------
 //;- Geometric Image Transformations                                      
-//;- https://docs.opencv.org/4.6.0/da/d54/group__imgproc__transform.html  
+//;- https://docs.opencv.org/5.0.0/da/d54/group__imgproc__transform.html  
 //;-----------------------------------------------------------------------
 
 COMMAND cmd_resize(RXIFRM *frm, void *ctx) {
@@ -67,7 +67,7 @@ COMMAND cmd_resize(RXIFRM *frm, void *ctx) {
 
 //;-----------------------------------------------------------------------
 //;- Operations on arrays                                                 
-//;- https://docs.opencv.org/4.6.0/d2/de8/group__core__array.html         
+//;- https://docs.opencv.org/5.0.0/d2/de8/group__core__array.html         
 //;-----------------------------------------------------------------------
 
 enum  MatMathOp {
@@ -374,7 +374,7 @@ COMMAND cmd_transform(RXIFRM *frm, void *ctx) {
 
 //;-----------------------------------------------------------------------
 //;- Mat class                                                            
-//;- https://docs.opencv.org/4.6.0/d3/d63/classcv_1_1Mat.html             
+//;- https://docs.opencv.org/5.0.0/d3/d63/classcv_1_1Mat.html             
 //;-----------------------------------------------------------------------
 
 COMMAND cmd_convertTo(RXIFRM *frm, void *ctx) {

@@ -13,7 +13,7 @@
 
 //;-----------------------------------------------------------------------
 //;- High-level GUI                                                       
-//;- https://docs.opencv.org/4.6.0/d7/dfc/group__highgui.html             
+//;- https://docs.opencv.org/5.0.0/d7/dfc/group__highgui.html             
 //;-----------------------------------------------------------------------
 
 COMMAND cmd_startWindowThread(RXIFRM *frm, void *ctx) {

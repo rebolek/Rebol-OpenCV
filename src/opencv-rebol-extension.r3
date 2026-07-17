@@ -104,7 +104,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Image file reading and writing                                                               
-	;- https://docs.opencv.org/4.6.0/d4/da8/group__imgcodecs.html                                   
+	;- https://docs.opencv.org/5.0.0/d4/da8/group__imgcodecs.html                                   
 	;-----------------------------------------------------------------------------------------------
 	imread: [
 		src [file! string!] "Loads an image from a file."
@@ -128,7 +128,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Geometric Image Transformations                                                              
-	;- https://docs.opencv.org/4.6.0/da/d54/group__imgproc__transform.html                          
+	;- https://docs.opencv.org/5.0.0/da/d54/group__imgproc__transform.html                          
 	;-----------------------------------------------------------------------------------------------
 	;convertMaps
 	;getAffineTransform
@@ -154,7 +154,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Image Filtering                                                                              
-	;- https://docs.opencv.org/4.6.0/d4/d86/group__imgproc__filter.html                             
+	;- https://docs.opencv.org/5.0.0/d4/d86/group__imgproc__filter.html                             
 	;-----------------------------------------------------------------------------------------------
 	bilateralFilter: [
 		"Applies the bilateral filter to an image."
@@ -260,7 +260,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Color Space Conversions                                                                      
-	;- https://docs.opencv.org/4.6.0/d8/d01/group__imgproc__color__conversions.html                 
+	;- https://docs.opencv.org/5.0.0/d8/d01/group__imgproc__color__conversions.html                 
 	;-----------------------------------------------------------------------------------------------
 	cvtColor: [
 		"Converts an image from one color space to another."
@@ -271,7 +271,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Color Maps                                                                                   
-	;- https://docs.opencv.org/4.6.0/d3/d50/group__imgproc__colormap.html                           
+	;- https://docs.opencv.org/5.0.0/d3/d50/group__imgproc__colormap.html                           
 	;-----------------------------------------------------------------------------------------------
 
 	applyColorMap: [
@@ -283,7 +283,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Image Thresholding                                                                           
-	;- https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html                             
+	;- https://docs.opencv.org/5.x/d7/d4d/tutorial_py_thresholding.html                             
 	;-----------------------------------------------------------------------------------------------
 	threshold: [
 		"Applies a fixed-level threshold to each array element."
@@ -297,7 +297,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Operations on arrays                                                                         
-	;- https://docs.opencv.org/4.6.0/d2/de8/group__core__array.html                                 
+	;- https://docs.opencv.org/5.0.0/d2/de8/group__core__array.html                                 
 	;-----------------------------------------------------------------------------------------------
 	absdiff: [
 		"Calculates the per-element absolute difference between two arrays"
@@ -476,7 +476,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Mat class                                                                                    
-	;- https://docs.opencv.org/4.6.0/d3/d63/classcv_1_1Mat.html                                     
+	;- https://docs.opencv.org/5.0.0/d3/d63/classcv_1_1Mat.html                                     
 	;-----------------------------------------------------------------------------------------------
 	convertTo: [
 		"Converts an array to another data type with optional scaling."
@@ -489,7 +489,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- Feature Detection                                                                            
-	;- https://docs.opencv.org/4.6.0/dd/d1a/group__imgproc__feature.html                            
+	;- https://docs.opencv.org/5.0.0/dd/d1a/group__imgproc__feature.html                            
 	;-----------------------------------------------------------------------------------------------
 	Canny: [
 		"Finds edges in an image using the Canny algorithm"
@@ -501,7 +501,7 @@ commands: [
 
 	;-----------------------------------------------------------------------------------------------
 	;- High-level GUI                                                                               
-	;- https://docs.opencv.org/4.6.0/d7/dfc/group__highgui.html                                     
+	;- https://docs.opencv.org/5.0.0/d7/dfc/group__highgui.html                                     
 	;-----------------------------------------------------------------------------------------------
 	startWindowThread: []
 	imshow: [

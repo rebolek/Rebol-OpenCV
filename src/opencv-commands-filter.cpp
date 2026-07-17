@@ -12,7 +12,7 @@
 
 //;-----------------------------------------------------------------------
 //;- Image Filtering                                                      
-//;- https://docs.opencv.org/4.6.0/d4/d86/group__imgproc__filter.html     
+//;- https://docs.opencv.org/5.0.0/d4/d86/group__imgproc__filter.html     
 //;-----------------------------------------------------------------------
 
 COMMAND cmd_bilateralFilter(RXIFRM *frm, void *ctx) {
@@ -188,7 +188,7 @@ COMMAND cmd_medianBlur(RXIFRM *frm, void *ctx) {
 
 //;-----------------------------------------------------------------------
 //;- Color Space Conversions                                              
-//;- https://docs.opencv.org/4.6.0/d8/d01/group__imgproc__color__conversions.html
+//;- https://docs.opencv.org/5.0.0/d8/d01/group__imgproc__color__conversions.html
 //;-----------------------------------------------------------------------
 
 COMMAND cmd_cvtColor(RXIFRM *frm, void *ctx) {
@@ -209,7 +209,7 @@ COMMAND cmd_cvtColor(RXIFRM *frm, void *ctx) {
 
 //;-----------------------------------------------------------------------------------------------
 //;- Color Maps                                                                                   
-//;- https://docs.opencv.org/4.6.0/d3/d50/group__imgproc__colormap.html                           
+//;- https://docs.opencv.org/5.0.0/d3/d50/group__imgproc__colormap.html                           
 //;-----------------------------------------------------------------------------------------------
 
 COMMAND cmd_applyColorMap(RXIFRM *frm, void *ctx) {
@@ -230,7 +230,7 @@ COMMAND cmd_applyColorMap(RXIFRM *frm, void *ctx) {
 
 //;-----------------------------------------------------------------------------------------------
 //;- Feature Detection                                                                            
-//;- https://docs.opencv.org/4.6.0/dd/d1a/group__imgproc__feature.html                            
+//;- https://docs.opencv.org/5.0.0/dd/d1a/group__imgproc__feature.html                            
 //;-----------------------------------------------------------------------------------------------
 
 COMMAND cmd_Canny(RXIFRM *frm, void *ctx) {
@@ -252,7 +252,7 @@ COMMAND cmd_Canny(RXIFRM *frm, void *ctx) {
 
 //;-----------------------------------------------------------------------
 //;- Image Thresholding                                                   
-//;- https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html     
+//;- https://docs.opencv.org/5.x/d7/d4d/tutorial_py_thresholding.html     
 //;-----------------------------------------------------------------------
 
 COMMAND cmd_threshold(RXIFRM *frm, void *ctx) {

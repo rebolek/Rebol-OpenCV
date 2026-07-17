@@ -247,7 +247,7 @@ COMMAND cmd_write(RXIFRM *frm, void *ctx) {
 
 //;-----------------------------------------------------------------------
 //;- Image file reading and writing                                       
-//;- https://docs.opencv.org/4.6.0/d4/da8/group__imgcodecs.html           
+//;- https://docs.opencv.org/5.0.0/d4/da8/group__imgcodecs.html           
 //;-----------------------------------------------------------------------
 
 COMMAND cmd_imread(RXIFRM *frm, void *ctx) {
