@@ -15,7 +15,7 @@ extern "C" {
 
 // Temporary buffer used to pass exception messages to the Rebol side.
 // Must be a global because the error string could be freed before Rebol reads it.
-extern char* err_buff[255];
+extern char err_buff[255];
 
 //----------------------------------------------------------------------
 // Exception handling — wraps each OpenCV call in try/catch and returns

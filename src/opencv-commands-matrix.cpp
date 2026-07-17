@@ -9,7 +9,7 @@
 #include "opencv-commands-common.h"
 
 // Global error buffer for exception messages
-char* err_buff[255];
+char err_buff[255];
 
 // Per-channel byte size indexed by OpenCV depth (CV_8U=0, CV_8S=1, CV_16U=2, CV_16S=3,
 // CV_32S=4, CV_32F=5, CV_64F=6, CV_16F=7). Total element size = depthByteSize[depth] * channels

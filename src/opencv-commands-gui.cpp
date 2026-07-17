@@ -252,13 +252,15 @@ static void rebMouseCallback(int event, int x, int y, int flags, void* userdata)
 }
 
 COMMAND cmd_setMouseCallback(RXIFRM *frm, void *ctx) {
-	REBHOB* hob = RL_MAKE_HANDLE_CONTEXT(Handle_cvMouseCallback);
-	if (hob == NULL) return RXR_FALSE;
-
+	// Removing the callback needs no handle context; allocate only when
+	// installing one, otherwise the abandoned hob would leak.
 	if (ARG_Is_None(3)) {
 		setMouseCallback(ARG_String(1), NULL);
 		return RXR_UNSET;
 	}
+
+	REBHOB* hob = RL_MAKE_HANDLE_CONTEXT(Handle_cvMouseCallback);
+	if (hob == NULL) return RXR_FALSE;
 
 	CTX_MOUSECALLBACK* mcb = (CTX_MOUSECALLBACK*)hob->data;
 	mcb->window = new String(ARG_String(1));
