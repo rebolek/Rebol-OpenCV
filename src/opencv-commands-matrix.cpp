@@ -130,13 +130,13 @@ int Common_mold(REBHOB *hob, REBSER *str) {
 //----------------------------------------------------------------------
 // cvMat_free / cvMat_get_path — lifecycle for cvMat handles
 //----------------------------------------------------------------------
-void* cvMat_free(void* cls) {
+int cvMat_free(void* cls) {
 	debug_print("GC Mat class %p\n", cls);
 	if (cls != NULL) {
 		Mat *mat = (Mat*)cls;
 		mat->release();
 	}
-	return NULL;
+	return 0;
 }
 
 int cvMat_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
@@ -236,13 +236,13 @@ int cvMat_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
 //----------------------------------------------------------------------
 // cvVideoCapture_free / cvVideoCapture_get_path — lifecycle for VideoCapture
 //----------------------------------------------------------------------
-void* cvVideoCapture_free(void* cls) {
+int cvVideoCapture_free(void* cls) {
 	debug_print("GC VideoCapture class %p\n", cls);
 	if (cls != NULL) {
 		VideoCapture *cap = (VideoCapture*)cls;
 		cap->release();
 	}
-	return NULL;
+	return 0;
 }
 
 int cvVideoCapture_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
@@ -284,7 +284,7 @@ int cvVideoCapture_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg)
 //----------------------------------------------------------------------
 // cvMouseCallback_free / cvMouseCallback_get_path — lifecycle for mouse callbacks
 //----------------------------------------------------------------------
-void* cvMouseCallback_free(void* cls) {
+int cvMouseCallback_free(void* cls) {
 	debug_print("GC MouseCallback class %p\n", cls);
 	if (cls != NULL) {
 		CTX_MOUSECALLBACK *mcb = (CTX_MOUSECALLBACK*)cls;
@@ -294,7 +294,7 @@ void* cvMouseCallback_free(void* cls) {
 		if(mcb->cbi)  FREE_MEM(mcb->cbi);
 		if(mcb->args) FREE_MEM(mcb->args);
 	}
-	return NULL;
+	return 0;
 }
 
 int cvMouseCallback_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg) {
@@ -330,19 +330,19 @@ int cvMouseCallback_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg
 //----------------------------------------------------------------------
 // releaseVideoWriter — GC callback for VideoWriter handles
 //----------------------------------------------------------------------
-void* releaseVideoWriter(void* cls) {
+int releaseVideoWriter(void* cls) {
 	debug_print("GC VideoWriter class %p\n", cls);
 	if (cls != NULL) {
 		VideoWriter *cap = (VideoWriter*)cls;
 		cap->release();
 	}
-	return NULL;
+	return 0;
 }
 
 //----------------------------------------------------------------------
 // releaseTrackbar — GC callback for Trackbar handles
 //----------------------------------------------------------------------
-void* releaseTrackbar(void* cls) {
+int releaseTrackbar(void* cls) {
 	debug_print("GC cvTrackbar %p\n", cls);
 	if (cls != NULL) {
 		CTX_TRACKBAR *bar = (CTX_TRACKBAR*)cls;
@@ -351,7 +351,7 @@ void* releaseTrackbar(void* cls) {
 		if(bar->cbi)  FREE_MEM(bar->cbi);
 		if(bar->args) FREE_MEM(bar->args);
 	}
-	return NULL;
+	return 0;
 }
 
 } // extern "C"
@@ -428,7 +428,9 @@ COMMAND cmd_Matrix(RXIFRM *frm, void *ctx) {
 					trace("Invalid matrix argument.");
 					goto err_spec;
 				}
-				t = RL_GET_VALUE(blk, n++, &val);
+				// Advance to the element following the handle (the ROI rect).
+				// Pre-increment: `n` still points at the handle here.
+				t = RL_GET_VALUE(blk, ++n, &val);
 				if (t == RXT_GET_WORD || t == RXT_GET_PATH || t == RXT_WORD || t == RXT_LIT_WORD) {
 					t = RL_GET_VALUE_RESOLVED(blk, n, &val);
 				}

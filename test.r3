@@ -163,6 +163,15 @@ m6: cv/Matrix m1
 assert [handle? m6] "Matrix copy from handle"
 assert-equal m6/size m1/size "Matrix copy same size"
 
+; --- submatrix (ROI) from existing mat + rect ---
+; Regression: the handle+rect block spec used to re-read the handle instead of
+; the following rect block (off-by-one), so this path always returned false.
+sub: cv/Matrix reduce [m1 [10x20 100x80]]
+assert [handle? sub] "Matrix ROI from handle + rect returns handle"
+assert-equal sub/size 100x80 "Matrix ROI has rect size (width x height)"
+assert [sub/is-submatrix] "Matrix ROI is a submatrix"
+cv/free sub
+
 ; --- free ---
 cv/free m6
 assert [none? try [m6/size]] "Access freed handle returns none"

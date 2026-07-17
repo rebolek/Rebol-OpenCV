@@ -152,12 +152,13 @@ extern "C" {
 	//--------------------------------------------------------------
 	// Handle lifecycle callbacks (referenced from opencv-rebol-extension.c)
 	//--------------------------------------------------------------
-	void* cvMat_free(void* cls);
+	// Handle free callbacks must match REB_HANDLE_FREE_FUNC: int (*)(void*).
+	int cvMat_free(void* cls);
 	int cvMat_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg);
-	void* cvVideoCapture_free(void* cls);
+	int cvVideoCapture_free(void* cls);
 	int cvVideoCapture_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg);
-	void* cvMouseCallback_free(void* cls);
+	int cvMouseCallback_free(void* cls);
 	int cvMouseCallback_get_path(REBHOB *hob, REBCNT word, REBCNT *type, RXIARG *arg);
-	void* releaseVideoWriter(void* cls);
-	void* releaseTrackbar(void* cls);
+	int releaseVideoWriter(void* cls);
+	int releaseTrackbar(void* cls);
 }
