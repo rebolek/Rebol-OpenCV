@@ -6,7 +6,7 @@
 github: @opencv
 
 compiler: clang
-version: 4.13.0
+version: 5.0.0
 
 ;define: USE_TRACES
 
@@ -63,10 +63,10 @@ flags:   [-O2 shared]
 #if posix? [
 	cppflag: "-std=c++11"
 	lflag:   "-lstdc++"
-	include: %/usr/local/include/opencv4/
+	include: %/usr/local/include/
 	library: %/usr/local/lib/
 	library: %opencv_core
-	library: %opencv_features2d
+	library: %opencv_features
 	library: %opencv_highgui
 	library: %opencv_imgcodecs
 	library: %opencv_imgproc
@@ -77,20 +77,25 @@ flags:   [-O2 shared]
 #if Windows?  [
 	compiler: clang
 	include: %build/include/
-	library: %opencv_core4130
-	library: %opencv_features2d4130
-	library: %opencv_highgui4130
-	library: %opencv_imgcodecs4130
-	library: %opencv_imgproc4130
-	library: %opencv_videoio4130
-	library: %opencv_objdetect4130
+	library: %opencv_core500
+	library: %opencv_features500
+	library: %opencv_highgui500
+	library: %opencv_imgcodecs500
+	library: %opencv_imgproc500
+	library: %opencv_videoio500
+	library: %opencv_objdetect500
 	upx: on
 ]
 
 make-extension: [
 	files: [
 		%src/opencv-rebol-extension.c
-		%src/opencv-commands.cpp
+		%src/opencv-commands-matrix.cpp
+		%src/opencv-commands-io.cpp
+		%src/opencv-commands-filter.cpp
+		%src/opencv-commands-array.cpp
+		%src/opencv-commands-gui.cpp
+		%src/opencv-commands-utils.cpp
 		%src/opencv-commands-table.c
 	]
 	;- generate main extension header --------------------------------

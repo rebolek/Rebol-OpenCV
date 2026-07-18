@@ -526,8 +526,8 @@ So far it is considered just like a proof of concept and tested only on macOS wi
 
 When building on macOS, the setup expects, that OpenCV includes and libs are accessible. So it is recommanded to use something like:
 ```
-ln -s /opt/homebrew/Cellar/opencv/4.6.0/include/opencv4/opencv2 /usr/local/include/opencv2
-ln -s /opt/homebrew/Cellar/opencv/4.6.0/lib /usr/local/lib/opencv
+ln -s /opt/homebrew/Cellar/opencv/5.0.0/include/opencv5/opencv2 /usr/local/include/opencv2
+ln -s /opt/homebrew/Cellar/opencv/5.0.0/lib /usr/local/lib/opencv
 ```
 To import the extension from Rebol on macOS, the Rebol must be signed with entitlemens containing `com.apple.security.cs.disable-library-validation` as `true`. 
 

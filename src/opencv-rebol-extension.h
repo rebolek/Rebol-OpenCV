@@ -275,7 +275,7 @@ typedef int (*MyCommandPointer)(RXIFRM *frm, void *ctx);
 	"cvtColor: command [\"Converts an image from one color space to another.\" src [handle!] \"source cvMat handle\" dst [handle! none!] \"destination cvMat\" code [integer!]]\n"\
 	"applyColorMap: command [{Applies a GNU Octave/MATLAB equivalent colormap on a given image.} src [handle!] \"source cvMat handle\" dst [handle! none!] \"destination cvMat\" colormap [integer!]]\n"\
 	"threshold: command [{Applies a fixed-level threshold to each array element.} src [handle!] dst [handle! none!] thresh [number!] maxval [number!] type [integer!]]\n"\
-	"absdiff: command [{Calculates the per-element absolute difference between two arrays} src1 [handle!] \"cvMat\" src2 [handle!] \"cvMat\" dst [handle! none!] \"cvMat\"]\n"\
+	"absdiff: command [{Calculates the per-element absolute difference between two arrays} src1 [handle!] \"cvMat\" src2 [handle! tuple!] \"cvMat, or a color tuple to diff against\" dst [handle! none!] \"cvMat\"]\n"\
 	"add: command [\"Calculates the per-element sum of two arrays.\" src1 [handle!] \"cvMat\" src2 [handle!] \"cvMat\" dst [handle! none!] \"cvMat\" /mask m [handle!] \"cvMat\"]\n"\
 	"addWeighted: command [\"Calculates the weighted sum of two arrays.\" src1 [handle!] \"cvMat\" alpha [number!] \"weight of the first array elements.\" src2 [handle!] \"cvMat\" beta [number!] \"weight of the second array elements.\" gamma [number!] \"scalar added to each sum.\" dst [handle! none!] \"cvMat\"]\n"\
 	"bitwise-and: command [{Computes bitwise conjunction of the two arrays (dst = src1 & src2)} src1 [handle!] \"cvMat\" src2 [handle!] \"cvMat\" dst [handle! none!] \"cvMat\" /mask m [handle!] \"cvMat\"]\n"\
@@ -733,6 +733,40 @@ typedef int (*MyCommandPointer)(RXIFRM *frm, void *ctx);
 	"CV_32S:  4\n"\
 	"CV_32F:  5\n"\
 	"CV_64F:  6\n"\
+	"\n"\
+	"; Types:\n"\
+	"CV_8UC1:  0\n"\
+	"CV_8SC1:  1\n"\
+	"CV_16UC1: 2\n"\
+	"CV_16SC1: 3\n"\
+	"CV_32SC1: 4\n"\
+	"CV_32FC1: 5\n"\
+	"CV_64FC1: 6\n"\
+	"CV_16FC1: 7\n"\
+	"CV_8UC2:  32\n"\
+	"CV_8SC2:  33\n"\
+	"CV_16UC2: 34\n"\
+	"CV_16SC2: 35\n"\
+	"CV_32SC2: 36\n"\
+	"CV_32FC2: 37\n"\
+	"CV_64FC2: 38\n"\
+	"CV_16FC2: 39\n"\
+	"CV_8UC3:  64\n"\
+	"CV_8SC3:  65\n"\
+	"CV_16UC3: 66\n"\
+	"CV_16SC3: 67\n"\
+	"CV_32SC3: 68\n"\
+	"CV_32FC3: 69\n"\
+	"CV_64FC3: 70\n"\
+	"CV_16FC3: 71\n"\
+	"CV_8UC4:  96\n"\
+	"CV_8SC4:  97\n"\
+	"CV_16UC4: 98\n"\
+	"CV_16SC4: 99\n"\
+	"CV_32SC4: 100\n"\
+	"CV_32FC4: 101\n"\
+	"CV_64FC4: 102\n"\
+	"CV_16FC4: 103\n"\
 	"\n"\
 	"; DecompTypes:\n"\
 	"DECOMP_LU: 0\n"\

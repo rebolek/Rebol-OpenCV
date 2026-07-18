@@ -30,10 +30,8 @@ int cmd_init_words(RXIFRM *frm, void *ctx) {
 	return RXR_NONE;
 }
 
-extern void* releaseVideoCapture(void* cls);
-extern void* releaseVideoWriter(void* cls);
-extern void* releaseMat(void* cls);
-extern void* releaseTrackbar(void* cls);
+extern int releaseVideoWriter(void* cls);
+extern int releaseTrackbar(void* cls);
 
 int Common_mold(REBHOB *hob, REBSER *ser);
 
